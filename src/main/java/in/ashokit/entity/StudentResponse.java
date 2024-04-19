@@ -13,34 +13,34 @@ public class StudentResponse {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long responseId;
-    private Long studentId;
+    private Integer responseId;
+    private Integer studentId;
     
     @Column(name = "responses", columnDefinition = "json")
     private String responses;
 
-    public Long getResponseId() {
-        return responseId;
-    }
+	public Integer getResponseId() {
+		return responseId;
+	}
 
-    public void setResponseId(Long responseId) {
-        this.responseId = responseId;
-    }
+	public void setResponseId(Integer responseId) {
+		this.responseId = responseId;
+	}
 
-    public Long getStudentId() {
-        return studentId;
-    }
+	public Integer getStudentId() {
+		return studentId;
+	}
 
-    public void setStudentId(Long studentId) {
-        this.studentId = studentId;
-    }
+	public void setStudentId(Integer studentId) {
+		this.studentId = studentId;
+	}
 
-    public String getResponses() {
-        return responses;
-    }
+	public String getResponses() {
+		return responses;
+	}
 
-    public void setResponses(String responses) {
-        this.responses = responses;
-    }
+	public void setResponses(String responses) {
+		this.responses = responses;
+	}
 }
 

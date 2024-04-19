@@ -65,6 +65,7 @@ public class StudentController {
 	@PostMapping("/profile")
 	public String updateProfile(@ModelAttribute Student student, Model model) {
 		Student updatedStudentDetails = studentService.updateStudentDetails(student);
+		System.out.println(student.getGender()); 
 		if (updatedStudentDetails != null) {
 			model.addAttribute("succMsg", "Detail updated successfully");
 		} else {

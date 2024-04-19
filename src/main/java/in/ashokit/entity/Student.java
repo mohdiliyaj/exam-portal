@@ -20,6 +20,7 @@ public class Student {
 	private String address;
 	private String password;
 	private String gender;
+	private Boolean isCompleted;
 	
 	public Integer getStudentId() {
 		return studentId;
@@ -68,5 +69,11 @@ public class Student {
 	}
 	public void setAddress(String address) {
 		this.address = address;
+	}
+	public Boolean getIsCompleted() {
+		return isCompleted;
+	}
+	public void setIsCompleted(Boolean isCompleted) {
+		this.isCompleted = isCompleted;
 	}
 }

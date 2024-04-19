@@ -8,5 +8,6 @@ import in.ashokit.entity.Question;
 public interface IExamService {
 	
 	public List<Question> getAllQuestions();
-	public List<ExamResponse> getListResponses();
+	
+	public boolean saveStudentExamResponse(Integer studentId, List<ExamResponse> selectedQuestions);
 }

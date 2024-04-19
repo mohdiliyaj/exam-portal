@@ -45,7 +45,8 @@
 									</li>
 								</ul>
 								<div class="py-1">
-									<a th:href="@{/logout}" class="text-sm hover:bg-gray-100 text-gray-700 block px-4 py-2">Sign
+									<a th:href="@{/logout}"
+										class="text-sm hover:bg-gray-100 text-gray-700 block px-4 py-2">Sign
 										out</a>
 								</div>
 							</div>
@@ -68,6 +69,9 @@
 						<p class="pt-4 flex flex-direction-col">
 							<a class="block px-2 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded-md"
 								th:href="@{/test}">Lets Start Exam</a>
+						</p>
+						<p class="pt-4 text-red-500 flex flex-direction-col" th:text="${errMsg}">
+							
 						</p>
 					</div>
 				</div>

@@ -51,6 +51,9 @@ public class StudentService implements IStudentService {
 		if(student.getPassword() != updatedStudent.getPassword() && !updatedStudent.getPassword().equals("")) {
 			student.setPassword(updatedStudent.getPassword());
 		}
+		if(student.getGender() != updatedStudent.getGender()) {
+			student.setGender(updatedStudent.getGender());
+		}
 		Student updatedStudentDetails = studentRepo.save(student);
 		return updatedStudentDetails;
 	}
