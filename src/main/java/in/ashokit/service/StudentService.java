@@ -1,61 +1,164 @@
 package in.ashokit.service;
 
-import java.util.Optional;
+import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
-import in.ashokit.binding.LoginBinding;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
+import in.ashokit.binding.ExamResponse;
+import in.ashokit.binding.StudentDashboard;
+import in.ashokit.entity.Category;
+import in.ashokit.entity.Questions;
 import in.ashokit.entity.Student;
+import in.ashokit.entity.StudentResponse;
+import in.ashokit.entity.User;
+import in.ashokit.repo.QuestionsRepo;
 import in.ashokit.repo.StudentRepo;
+import in.ashokit.repo.StudentResponseRepo;
+import jakarta.transaction.Transactional;
 
 @Service
 public class StudentService implements IStudentService {
-	
+
+	private QuestionsRepo questionRepo;
+	private StudentResponseRepo studentResponseRepo;
 	private StudentRepo studentRepo;
-	
-	public StudentService(StudentRepo studentRepo) {
+
+	public StudentService(QuestionsRepo questionRepo,StudentResponseRepo studentResponseRepo,StudentRepo studentRepo) {
+		this.questionRepo = questionRepo;
+		this.studentResponseRepo = studentResponseRepo;
 		this.studentRepo = studentRepo;
 	}
+
+	@Override
+	public List<Questions> getAllQuestion(Integer categoryId) {
+		Category category = new Category();
+		category.setCategoryId(categoryId);
+		return questionRepo.findByCategory(category);
+	}
+
+	@Override
+	@Transactional(rollbackOn = Exception.class)
+	public boolean validateAndSaveExam(List<ExamResponse> examResponse, Integer ctaegoryId, Integer userId) {
+
+		Integer marks = 0;
+		String studentResponseInJson = "";
+
+		Map<Integer, Integer> response = new HashMap<>();
+		examResponse.forEach(e -> {
+			response.put(e.getQuestionId(), e.getAnswerId());
+		});
+
+		List<Questions> allQuestion = getAllQuestion(ctaegoryId);
+		Map<Integer, Integer> questions = new HashMap<>();
+		allQuestion.forEach(e -> {
+			questions.put(e.getQuestionId(), e.getAnswer().getCorrectAnswer());
+		});
+
+		Set<Integer> keySet = questions.keySet();
+		for (Integer i : keySet) {
+			if (questions.get(i) == response.get(i)) {
+				marks++;
+			}
+		}
+		
+		try {
+			studentResponseInJson = convertStudentResponseInJson(examResponse);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		Category category =  new Category();
+		category.setCategoryId(ctaegoryId);
+		
+		User user = new User();
+		user.setUserId(userId);
+		
+		StudentResponse studentResponse = new StudentResponse();
+		studentResponse.setCategory(category);
+		studentResponse.setUser(user);
+		studentResponse.setResponses(studentResponseInJson);
+		studentResponse.setScoredMarks(marks);
+		studentResponse.setSubmittedTime(LocalDateTime.now());
+		Double percentage = ((double)marks/(double)keySet.size())*100;
+		studentResponse.setPercentage(percentage);
+		Boolean examStatus = percentage>70 ? true : false;
+		studentResponse.setExamStatus(examStatus);
+		
+		StudentResponse save = studentResponseRepo.save(studentResponse);
+		if(save != null) {
+			return true;
+		}
+		return false;
+		
+	}
+
+	private String convertStudentResponseInJson(List<ExamResponse> examResponse) throws JsonProcessingException {
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+		return objectMapper.writeValueAsString(examResponse);
+	}
+	
 	
 	@Override
-	public Student loginCheck(LoginBinding login) {
-		Student student = studentRepo.findByEmailAndPassword(login.getEmail(), login.getPassword());
-		if(student != null) {
-			return student;
+	public List<StudentResponse> getUserExamsByUserId(User user) {
+		List<StudentResponse> byUserId = studentResponseRepo.findByUser(user);
+		Collections.reverse(byUserId);
+		if(byUserId.size() < 8) {
+			return byUserId;
 		}
-		return null;
+		return new ArrayList<>(byUserId.subList(0, 8));
 	}
 	
 	@Override
-	public Student getStudent(Integer studentId) {
-		Optional<Student> byId = studentRepo.findById(studentId);
-		if(byId.isPresent()) {
-			Student student = byId.get();
-			return student;
-		}
-		return null;
+	public StudentDashboard buildStudentDashboard(User user) {
+		List<StudentResponse> byUserId = studentResponseRepo.findByUser(user);
+		StudentDashboard dashboard = new StudentDashboard();
+		dashboard.setNoOfExams(byUserId.size());
+		long passedExams = byUserId.stream().filter(e-> e.getExamStatus().equals(true)).count();
+		dashboard.setPassedExams(passedExams);
+		long failedExams = byUserId.stream().filter(e-> e.getExamStatus().equals(false)).count();
+		dashboard.setFailedExams(failedExams);
+		double overAllPercentage = byUserId.stream().mapToDouble(StudentResponse::getPercentage).average().orElse(0.0);
+		DecimalFormat decimalFormat = new DecimalFormat("#.##");
+        String formattedPercentage = decimalFormat.format(overAllPercentage);
+		dashboard.setOverAllPercentage(formattedPercentage);
+		return dashboard;
 	}
 	
 	@Override
-	public Student updateStudentDetails(Student updatedStudent) {
-		Student student = studentRepo.findById(updatedStudent.getStudentId()).get();		
-		if(student.getName() != updatedStudent.getName()) {
-			student.setName(updatedStudent.getName());
-		}
-		if(student.getPhoneNumber() != updatedStudent.getPhoneNumber()) {
-			student.setPhoneNumber(updatedStudent.getPhoneNumber());
-		}
-		if(student.getAddress() != updatedStudent.getAddress()) {
-			student.setAddress(updatedStudent.getAddress());
-		}
-		if(student.getPassword() != updatedStudent.getPassword() && !updatedStudent.getPassword().equals("")) {
-			student.setPassword(updatedStudent.getPassword());
-		}
-		if(student.getGender() != updatedStudent.getGender()) {
-			student.setGender(updatedStudent.getGender());
-		}
-		Student updatedStudentDetails = studentRepo.save(student);
-		return updatedStudentDetails;
+	public Student findStudentByUserId(User user) {
+		return studentRepo.findByUser(user);
 	}
 	
+	@Override
+	public Student updateStudentDetails(Student updateStudent) {
+		Student student = studentRepo.findById(updateStudent.getStudentId()).get();
+		if (student.getName() != updateStudent.getName()) {
+			student.setName(updateStudent.getName());
+		}
+		if (student.getPhoneNumber() != updateStudent.getPhoneNumber()) {
+			student.setPhoneNumber(updateStudent.getPhoneNumber());
+		}
+		if (student.getAddress() != updateStudent.getAddress()) {
+			student.setAddress(updateStudent.getAddress());
+		}
+		if (student.getPassword() != updateStudent.getPassword() && !updateStudent.getPassword().equals("")) {
+			student.setPassword(updateStudent.getPassword());
+		}
+		if (student.getGender() != updateStudent.getGender()) {
+			student.setGender(updateStudent.getGender());
+		}
+		Student save = studentRepo.save(student);
+		return save;
+	}
 }

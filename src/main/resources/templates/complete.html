@@ -11,29 +11,22 @@
 </head>
 
 <body>
-	<div class="px-20 bg-indigo-500 py-2">
+	<div class="fixed z-50 px-20 bg-white shadow py-2 top-0 left-0 right-0">
+		<!-- Fixed header content -->
 		<nav>
 			<div class="mx-auto flex flex-wrap items-center justify-between">
-				<a href="#" class="flex items-center text-white space-x-3 rtl:space-x-reverse justify-center">
-					<svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24"
-						stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-							d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
-					</svg>
-					<span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">
-						<p class="text-lg">Online Exam</p>
-						<p class="text-xs">Online Examination Portal</p>
-					</span>
+				<a class="text-sm font-bold block text-center text-gray-800 dark:text-gray-200" th:href="@{/dashboard}"
+					style="padding-bottom: 0px;">
+					<img th:src="@{/assets/images/ashokit-logo.png}" class="h-12" alt="logo">
 				</a>
 			</div>
 		</nav>
 	</div>
-	<section class="w-full my-8">
+	<section class="w-full mt-20">
 		<main class="container px-6 mx-auto">
-			<!-- Cards -->
-			<div class="mb-8">
-				<!-- Card 1-->
-				<div class="py-2 px-4 bg-white rounded-lg shadow dark:bg-gray-800">
+			<!-- Main content -->
+			<div class="mb-2">
+				<div class="bg-white border border-4 rounded-lg shadow relative mx-8">
 					<div class="p-3 mr-4">
 						<h4 class="text-2xl font-semibold text-gray-700 dark:text-gray-200">You have sucessfully
 							completed the examination</h4>

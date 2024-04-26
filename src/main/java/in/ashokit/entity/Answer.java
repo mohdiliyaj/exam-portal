@@ -6,19 +6,21 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "answers_master")
 public class Answer {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer answerId;
-	private String answerValue;
-	private Boolean isCorrect;
+	private Integer correctAnswer;
 	
-	@ManyToOne
+	@OneToOne
 	@JoinColumn(name = "questionId")
-	private Question question;
+	private Questions question;
 
 	public Integer getAnswerId() {
 		return answerId;
@@ -28,27 +30,19 @@ public class Answer {
 		this.answerId = answerId;
 	}
 
-	public String getAnswerValue() {
-		return answerValue;
+	public Integer getCorrectAnswer() {
+		return correctAnswer;
 	}
 
-	public void setAnswerValue(String answerValue) {
-		this.answerValue = answerValue;
+	public void setCorrectAnswer(Integer correctAnswer) {
+		this.correctAnswer = correctAnswer;
 	}
 
-	public Boolean getIsCorrect() {
-		return isCorrect;
-	}
-
-	public void setIsCorrect(Boolean isCorrect) {
-		this.isCorrect = isCorrect;
-	}
-
-	public Question getQuestion() {
+	public Questions getQuestion() {
 		return question;
 	}
 
-	public void setQuestion(Question question) {
+	public void setQuestion(Questions question) {
 		this.question = question;
 	}
 }

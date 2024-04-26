@@ -4,20 +4,19 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>AICTE Portal</title>
-	<script src="https://kit.fontawesome.com/65b6696452.js" crossorigin="anonymous"></script>
-	<!-- Add this line to link Tailwind CSS -->
+	<title>Counsellor Portal</title>
 	<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1.2/dist/tailwind.min.css" rel="stylesheet">
+	<script src="https://kit.fontawesome.com/65b6696452.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
-	<header>
+	<header class="fixed w-full top-0 z-50">
 		<nav class="bg-indigo-500">
 			<div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
 				<div class="relative flex h-16 items-center justify-between">
 					<div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
 						<div class="flex flex-shrink-0 items-center">
-							<img class="h-8 w-auto" th:src="@{/assets/images/ashokit-logo.png}" alt="Your Company">
+							<img class="h-8 w-auto" th:src="@{/assets/images/ashokit-logo.png}" alt="Ashokit Logo">
 						</div>
 					</div>
 					<div>
@@ -32,11 +31,160 @@
 		</nav>
 
 	</header>
-	<section class="mt-9">
+	<section class="mt-20">
 		<div class="flex items-center justify-center my-3">
 			<div class="bg-gray-100 text-gray-500 rounded-3xl shadow-xl w-full overflow-hidden"
 				style="max-width:1000px">
 				<div class="md:flex w-full">
+					<div class="w-full md:w-1/2 py-8 px-5 md:px-10">
+						<div class="text-center mb-4">
+							<h1 class="font-bold text-3xl text-gray-900">REGISTER</h1>
+							<p>Enter your information to register</p>
+							<p class="mt-2 text-green-500" th:text="${succMsg}"></p>
+							<p class="mt-2 text-red-500" th:text="${errMsg}"></p>
+						</div>
+						<form id="registerForm" th:object="${register}" th:action="@{/register}" method="post"
+							onsubmit="return validateForm(event)">
+							<div>
+								<div class="flex -mx-3">
+									<div class="w-full px-3 mb-3">
+										<label for="fullName" class="text-sm font-semibold px-1">Full Name</label>
+										<div class="flex">
+											<div
+												class="w-10 z-10 pl-1 text-center pointer-events-none flex items-center justify-center">
+												<i class="fa fa-user" aria-hidden="true"></i>
+											</div>
+											<input type="text" name="fullName" id="fullName" th:field="*{name}"
+												oninput="this.classList.remove('border-red-500')"
+												class="w-full -ml-10 pl-10 pr-3 py-2 rounded-lg border-2 border-gray-200 outline-none focus:border-indigo-500"
+												placeholder="John Smith">
+										</div>
+										<span id="fullNameError" class="text-red-500 text-sm"></span>
+									</div>
+								</div>
+								<div class="flex -mx-3">
+									<div class="w-full px-3 mb-3">
+										<label for="email" class="text-sm font-semibold px-1">Email</label>
+										<div class="flex">
+											<div
+												class="w-10 z-10 pl-1 text-center pointer-events-none flex items-center justify-center">
+												<i class="fa fa-envelope-o" aria-hidden="true"></i>
+											</div>
+											<input type="email" id="email" name="email" th:field="*{email}"
+												oninput="this.classList.remove('border-red-500')"
+												class="w-full -ml-10 pl-10 pr-3 py-2 rounded-lg border-2 border-gray-200 outline-none focus:border-indigo-500"
+												placeholder="johnsmith@example.com">
+										</div>
+										<span id="emailError" class="text-red-500 text-sm"></span>
+									</div>
+								</div>
+								<div class="flex -mx-3">
+									<div class="w-full px-3 mb-3">
+										<label for="phoneNumber" class="text-sm font-semibold px-1">Phone Number</label>
+										<div class="flex">
+											<div
+												class="w-10 z-10 pl-1 text-center pointer-events-none flex items-center justify-center">
+												<i class="fa fa-phone" aria-hidden="true"></i>
+											</div>
+											<input type="number" name="phoneNumber" id="phoneNumber"
+												th:field="*{phoneNumber}"
+												oninput="this.classList.remove('border-red-500')"
+												class="w-full -ml-10 pl-10 pr-3 py-2 rounded-lg border-2 border-gray-200 outline-none focus:border-indigo-500"
+												placeholder="+91 987654321">
+										</div>
+										<span id="phoneNumberError" class="text-red-500 text-sm"></span>
+									</div>
+								</div>
+								<div class="flex -mx-3">
+									<div class="w-full px-3 mb-5">
+										<label for="password" class="text-sm font-semibold px-1">Password</label>
+										<div class="flex">
+											<div
+												class="w-10 z-10 pl-1 text-center pointer-events-none flex items-center justify-center">
+												<i class="fa fa-lock" aria-hidden="true"></i>
+											</div>
+											<input type="password" id="password" name="password" th:field="*{password}"
+												oninput="this.classList.remove('border-red-500')"
+												class="w-full -ml-10 pl-10 pr-3 py-2 rounded-lg border-2 border-gray-200 outline-none focus:border-indigo-500"
+												placeholder="************">
+										</div>
+										<span id="passwordError" class="text-red-500 text-sm"></span>
+									</div>
+								</div>
+								<div class="flex -mx-3">
+									<div class="w-full px-3 mb-5">
+										<label for="dob" class="text-sm font-semibold px-1">Date Of Birth</label>
+										<div class="flex">
+											<div
+												class="w-10 z-10 pl-1 text-center pointer-events-none flex items-center justify-center">
+												<i class="fa fa-calendar" aria-hidden="true"></i>
+											</div>
+											<input type="date" id="dob" name="dob"
+												oninput="this.classList.remove('border-red-500')"
+												th:field="*{dateOfBirth}"
+												class="w-full -ml-10 pl-10 pr-3 py-2 rounded-lg border-2 border-gray-200 outline-none focus:border-indigo-500">
+										</div>
+										<span id="dobError" class="text-red-500 text-sm"></span>
+									</div>
+								</div>
+								<div class="flex -mx-3">
+									<div class="w-full px-3 mb-5">
+										<label for="address" class="text-sm font-semibold px-1">Address</label>
+										<div class="flex">
+											<div
+												class="w-10 z-10 pl-1 text-center pointer-events-none flex items-center justify-center">
+												<i class="fa fa-map-marker" aria-hidden="true"></i>
+											</div>
+											<input type="text" id="address" name="address" th:field="*{address}"
+												oninput="this.classList.remove('border-red-500')"
+												class="w-full -ml-10 pl-10 pr-3 py-2 rounded-lg border-2 border-gray-200 outline-none focus:border-indigo-500"
+												placeholder="4-34 Elm Avenue, Springfield, USA 123456">
+										</div>
+										<span id="addressError" class="text-red-500 text-sm"></span>
+									</div>
+								</div>
+								<div class="flex -mx-3">
+									<fieldset class="w-full px-3 mb-5">
+										<legend class="text-sm font-semibold px-1">Gender</legend>
+										<div class="mt-2 px-1">
+											<label for="male" class="inline-flex mr-3 items-center">
+												<input type="radio" id="male" th:field="*{gender}" name="gender"
+													value="male"
+													class="form-radio h-4 w-4 text-cyan-600 focus:ring-cyan-500">
+												<span class="ml-2 text-gray-900">Male</span>
+											</label>
+											<label for="female" class="inline-flex mr-3 items-center">
+												<input type="radio" id="female" th:field="*{gender}" name="gender"
+													value="female"
+													class="form-radio h-4 w-4 text-cyan-600 focus:ring-cyan-500">
+												<span class="ml-2 text-gray-900">Female</span>
+											</label>
+											<label for="other" class="inline-flex items-center">
+												<input type="radio" id="other" th:field="*{gender}" name="gender"
+													value="other"
+													class="form-radio h-4 w-4 text-cyan-600 focus:ring-cyan-500">
+												<span class="ml-2 text-gray-900">Other</span>
+											</label>
+										</div>
+										<span id="genderError" class="text-red-500"></span>
+									</fieldset>
+								</div>
+								<div class="flex -mx-3">
+									<div class="w-full px-3 mb-5">
+										<button
+											class="block w-full  bg-indigo-500 hover:bg-indigo-700 focus:bg-indigo-700 text-white rounded-lg px-3 py-3 font-semibold outline-none border-none focus:outline-none">REGISTER
+											NOW</button>
+									</div>
+								</div>
+								<div class="flex -mx-3">
+									<div class="w-full px-3 mb-5 text-center">
+										<p>I have an account <a th:href="@{/}" class="text-blue-600">Login here</a> </p>
+									</div>
+								</div>
+
+							</div>
+						</form>
+					</div>
 					<!-- svg image -->
 					<div class="hidden md:block w-1/2 bg-indigo-500 py-8 px-10">
 						<svg id="a87032b8-5b37-4b7e-a4d9-4dbfbe394641" data-name="Layer 1"
@@ -120,101 +268,98 @@
 								transform="translate(-227.576 -76.46149)" fill="#2f2e41" />
 						</svg>
 					</div>
-					<div class="w-full md:w-1/2 py-8 px-5 md:px-10 my-auto">
-						<div class="text-center mb-4">
-							<h1 class="font-bold text-3xl text-gray-900">LOGIN</h1>
-							<p>Enter your credentials to login</p>
-							<p class="mt-2 text-red-500" th:text="${errMsg}"></p>
-						</div>
-						<form th:action="@{/login}" th:object="${student}" method="post"
-							onsubmit="return validateForm()" novalidate>
-							<div>
-								<div class="flex -mx-3">
-									<div class="w-full px-3 mb-3">
-										<label for="email" class="text-sm font-semibold px-1">Email</label>
-										<div class="flex">
-											<div
-												class="w-10 z-10 pl-1 text-center pointer-events-none flex items-center justify-center">
-												<i class="fa fa-envelope-o" aria-hidden="true"></i>
-											</div>
-											<input type="email" id="email" name="email" th:field="*{email}"
-												oninput="this.classList.remove('border-red-500')"
-												class="w-full -ml-10 pl-10 pr-3 py-2 rounded-lg border-2 border-gray-200 outline-none focus:border-indigo-500"
-												placeholder="johnsmith@example.com">
-										</div>
-										<span id="emailError" class="text-red-500 text-sm"></span>
-									</div>
-								</div>
-								<div class="flex -mx-3">
-									<div class="w-full px-3 mb-4">
-										<label for="password" class="text-sm font-semibold px-1">Password</label>
-										<div class="flex">
-											<div
-												class="w-10 z-10 pl-1 text-center pointer-events-none flex items-center justify-center">
-												<i class="fa fa-lock" aria-hidden="true"></i>
-											</div>
-											<input type="password" id="password" name="password" th:field="*{password}"
-												oninput="this.classList.remove('border-red-500')"
-												class="w-full -ml-10 pl-10 pr-3 py-2 rounded-lg border-2 border-gray-200 outline-none focus:border-indigo-500"
-												placeholder="************">
-										</div>
-										<span id="passwordError" class="text-red-500 text-sm"></span>
-										<div class="block flex justify-end mt-1">
-											<a href="#" class="text-sm font-semibold text-blue-500">Forgot Password?</a>
-										</div>
-									</div>
-								</div>
-								<div class="flex -mx-3">
-									<div class="w-full px-3 mb-4">
-										<button type="submit"
-											class="block w-full  bg-indigo-500 hover:bg-indigo-700 focus:bg-indigo-700 text-white rounded-lg px-3 py-3 font-semibold focus:outline-none">LOGIN</button>
-									</div>
-								</div>
-								<div class="flex -mx-3">
-									<div class="w-full px-3 mb-5 text-center">
-										<p>Don’t have an account yet? <a th:href="@{/register}"
-												class="text-blue-600">Register
-												here</a>
-										</p>
-									</div>
-								</div>
-							</div>
-						</form>
-					</div>
 				</div>
 			</div>
 		</div>
 	</section>
 	<script>
-		function validateForm() {
+		function validateForm(event) {
+			event.preventDefault();
+			var fullNameInput = document.getElementById('fullName');
 			var emailInput = document.getElementById('email');
+			var phoneNumberInput = document.getElementById('phoneNumber');
 			var passwordInput = document.getElementById('password');
+			var dobInput = document.getElementById('dob');
+			var addressInput = document.getElementById('address');
+			var genderInputs = document.querySelectorAll('input[name="gender"]');
+			var fullName = fullNameInput.value.trim();
 			var email = emailInput.value.trim();
+			var phoneNumber = phoneNumberInput.value.trim();
 			var password = passwordInput.value.trim();
+			var dob = dobInput.value.trim();
+			var address = addressInput.value.trim();
+			var isValid = true;
+
+			// Reset validation messages
+			var errorMessages = document.querySelectorAll('.text-red-500');
+			errorMessages.forEach(function (errorMessage) {
+				errorMessage.textContent = '';
+			});
+
+			if (fullName === '') {
+				fullNameInput.classList.add('border-red-500');
+				document.getElementById('fullNameError').textContent = 'Full Name is required';
+				isValid = false;
+			} else {
+				fullNameInput.classList.remove('border-red-500');
+			}
+
 			var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-			var isEmailValid = emailPattern.test(email);
-			var isPasswordValid = password.length >= 8;
-
-			var emailError = document.getElementById('emailError');
-			var passwordError = document.getElementById('passwordError');
-
-			if (!isEmailValid) {
+			if (!emailPattern.test(email)) {
 				emailInput.classList.add('border-red-500');
-				emailError.textContent = 'Please enter valid email';
+				document.getElementById('emailError').textContent = 'Invalid email format';
+				isValid = false;
 			} else {
 				emailInput.classList.remove('border-red-500');
-				emailError.textContent = '';
 			}
 
-			if (!isPasswordValid) {
+			if (phoneNumber.length !== 10) {
+				phoneNumberInput.classList.add('border-red-500');
+				document.getElementById('phoneNumberError').textContent = 'Phone Number should be 10 digits.';
+				isValid = false;
+			} else {
+				phoneNumberInput.classList.remove('border-red-500');
+			}
+
+			if (password.length < 8) {
 				passwordInput.classList.add('border-red-500');
-				passwordError.textContent = 'Please enter valid password';
+				document.getElementById('passwordError').textContent = 'Password should be at least 8 characters.';
+				isValid = false;
 			} else {
 				passwordInput.classList.remove('border-red-500');
-				passwordError.textContent = '';
 			}
 
-			return isEmailValid && isPasswordValid;
+			if (dob === '') {
+				dobInput.classList.add('border-red-500');
+				document.getElementById('dobError').textContent = 'Date of Birth is required.';
+				isValid = false;
+			} else {
+				dobInput.classList.remove('border-red-500');
+			}
+
+			if (address === '') {
+				addressInput.classList.add('border-red-500');
+				document.getElementById('addressError').textContent = 'Address is required.';
+				isValid = false;
+			} else {
+				addressInput.classList.remove('border-red-500');
+			}
+
+			var genderSelected = false;
+			genderInputs.forEach(function (input) {
+				if (input.checked) {
+					genderSelected = true;
+				}
+			});
+
+			if (!genderSelected) {
+				document.getElementById('genderError').textContent = 'Please select a gender.';
+				isValid = false;
+			}
+
+			if (isValid) {
+				document.getElementById('registerForm').submit();
+			}
 		}
 	</script>
 </body>

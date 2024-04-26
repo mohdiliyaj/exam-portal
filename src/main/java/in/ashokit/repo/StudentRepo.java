@@ -3,9 +3,11 @@ package in.ashokit.repo;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import in.ashokit.entity.Student;
+import in.ashokit.entity.User;
+
 
 public interface StudentRepo extends JpaRepository<Student, Integer>{
 	
-	public Student findByEmailAndPassword(String email, String password);
+	public Student findByUser(User user);
 
 }

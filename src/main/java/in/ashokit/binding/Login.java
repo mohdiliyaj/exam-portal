@@ -1,6 +1,6 @@
 package in.ashokit.binding;
 
-public class LoginBinding {
+public class Login {
 	
 	private String email;
 	private String password;

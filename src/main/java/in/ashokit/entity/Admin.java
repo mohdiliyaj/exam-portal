@@ -1,7 +1,5 @@
 package in.ashokit.entity;
 
-import java.time.LocalDate;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,30 +9,27 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "student_master")
-public class Student {
+@Table(name = "admin_master")
+public class Admin {
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer studentId;
+	private Integer adminId;
 	private String name;
 	private String email;
 	private Long phoneNumber;
-	private LocalDate dateOfBirth;
-	private String address;
 	private String password;
-	private String gender;
 	
 	@OneToOne
 	@JoinColumn(name = "user_id")
 	private User user;
-	
 
-	public Integer getStudentId() {
-		return studentId;
+	public Integer getAdminId() {
+		return adminId;
 	}
 
-	public void setStudentId(Integer studentId) {
-		this.studentId = studentId;
+	public void setAdminId(Integer adminId) {
+		this.adminId = adminId;
 	}
 
 	public String getName() {
@@ -53,22 +48,6 @@ public class Student {
 		this.email = email;
 	}
 
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public String getGender() {
-		return gender;
-	}
-
-	public void setGender(String gender) {
-		this.gender = gender;
-	}
-
 	public Long getPhoneNumber() {
 		return phoneNumber;
 	}
@@ -77,20 +56,12 @@ public class Student {
 		this.phoneNumber = phoneNumber;
 	}
 
-	public LocalDate getDateOfBirth() {
-		return dateOfBirth;
+	public String getPassword() {
+		return password;
 	}
 
-	public void setDateOfBirth(LocalDate dateOfBirth) {
-		this.dateOfBirth = dateOfBirth;
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public User getUser() {
