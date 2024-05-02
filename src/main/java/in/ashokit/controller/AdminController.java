@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import in.ashokit.binding.AdminDashboard;
-import in.ashokit.binding.CategoryData;
 import in.ashokit.binding.Question;
 import in.ashokit.entity.Category;
 import in.ashokit.entity.Questions;
@@ -32,12 +31,10 @@ public class AdminController {
 	@GetMapping("/admin-dashboard")
 	public String loadDashboard(HttpServletRequest req, Model model) {
 		HttpSession session = req.getSession(false);
-		if (session != null) {
-			if (session.getAttribute("userType").equals("admin")) {
-				AdminDashboard adminDashboard = adminService.buildAdminDashboard();
-				model.addAttribute("dashboard", adminDashboard);
-				return "admin-dashboard";
-			}
+		if (session != null && session.getAttribute("userType").equals("admin")) {
+			AdminDashboard adminDashboard = adminService.buildAdminDashboard();
+			model.addAttribute("dashboard", adminDashboard);
+			return "admin-dashboard";
 		}
 		return "redirect:/logout";
 	}
@@ -45,11 +42,9 @@ public class AdminController {
 	@GetMapping("/add-subject")
 	public String loadAddSubject(HttpServletRequest req, Model model) {
 		HttpSession session = req.getSession(false);
-		if (session != null) {
-			if (session.getAttribute("userType").equals("admin")) {
-				model.addAttribute("subject", new Subject());
-				return "add-subject";
-			}
+		if (session != null && session.getAttribute("userType").equals("admin")) {
+			model.addAttribute("subject", new Subject());
+			return "add-subject";
 		}
 		return "redirect:/logout";
 	}
@@ -138,10 +133,10 @@ public class AdminController {
 		if (session != null) {
 			if (session.getAttribute("userType").equals("admin")) {
 				if (category.getCategoryId() != null) {
-					
+
 					Category saveCategory = adminService.saveCategory(category, subjectId,
 							(Integer) session.getAttribute("userId"));
-					if(saveCategory != null) {
+					if (saveCategory != null) {
 						model.addAttribute("succMsg",
 								saveCategory.getCategoryName() + " Category details updated successfully");
 						model.addAttribute("category", saveCategory);
@@ -150,7 +145,7 @@ public class AdminController {
 					model.addAttribute("errMsg", "Error occured while updating the category");
 					model.addAttribute("category", category);
 					return "add-category";
-					
+
 				} else {
 					Category categoryByName = adminService.getCategoryByName(category.getCategoryName());
 					List<Subject> allSubjects = adminService.getAllSubjects();
@@ -221,7 +216,7 @@ public class AdminController {
 	}
 
 	@PostMapping("/add-question")
-	public String saveQuestion(@ModelAttribute("question") Question question, HttpServletRequest req, Model model){
+	public String saveQuestion(@ModelAttribute("question") Question question, HttpServletRequest req, Model model) {
 
 		HttpSession session = req.getSession(false);
 		if (session != null) {
@@ -229,8 +224,8 @@ public class AdminController {
 				if (question.getQuestionId() != null) {
 					Question saveQuestion = null;
 					try {
-						saveQuestion = adminService.saveQuestion(question,
-								(Integer) session.getAttribute("userId"), question.getCategoryId());
+						saveQuestion = adminService.saveQuestion(question, (Integer) session.getAttribute("userId"),
+								question.getCategoryId());
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -249,8 +244,8 @@ public class AdminController {
 					if (questionByName == null) {
 						Question saveQuestion = null;
 						try {
-							saveQuestion = adminService.saveQuestion(question,
-									(Integer) session.getAttribute("userId"), question.getCategoryId());
+							saveQuestion = adminService.saveQuestion(question, (Integer) session.getAttribute("userId"),
+									question.getCategoryId());
 						} catch (Exception e) {
 							e.printStackTrace();
 						}

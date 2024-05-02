@@ -24,4 +24,7 @@ public interface IStudentService {
 	
 	public Student updateStudentDetails(Student student);
 	
+	public Questions getQuestionByCategoryAndIndex(Integer categoryId, Integer index);
+	
+	public StudentResponse getUserExamResponseAfterSubmittingExam(User user);
 }

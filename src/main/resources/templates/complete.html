@@ -30,6 +30,21 @@
 					<div class="p-3 mr-4">
 						<h4 class="text-2xl font-semibold text-gray-700 dark:text-gray-200">You have sucessfully
 							completed the examination</h4>
+						<p class="block pt-4" th:object="${studentResponse}">
+							<span class="pr-4">
+								<span class="text-gray-800 text-md font-medium">Scored Marks : </span>
+								<span th:text="${studentResponse.scoredMarks}"></span>
+							</span>
+							<span class="pr-4">
+								<span class="text-gray-800 text-md font-medium">Scored Percentage : </span>
+								<span th:text="${studentResponse.percentage}"></span>
+							</span>
+							<span>
+								<span class="text-gray-800 text-md font-medium">Result : </span>
+								<span class="text-green-500" th:if="${studentResponse.examStatus == true}">Pass</span>
+								<span class="text-red-600" th:if="${studentResponse.examStatus == false}">Fail</span>
+							</span>
+						</p>
 						<p class="pt-4 flex flex-direction-col">
 							<a class="block px-2 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded-md"
 								th:href="@{/dashboard}">Return to dashboard</a>

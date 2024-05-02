@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import in.ashokit.entity.Questions;
 import in.ashokit.entity.Student;
 import in.ashokit.entity.StudentResponse;
 import in.ashokit.entity.User;
+import in.ashokit.repo.CategoryRepo;
 import in.ashokit.repo.QuestionsRepo;
 import in.ashokit.repo.StudentRepo;
 import in.ashokit.repo.StudentResponseRepo;
@@ -33,11 +35,14 @@ public class StudentService implements IStudentService {
 	private QuestionsRepo questionRepo;
 	private StudentResponseRepo studentResponseRepo;
 	private StudentRepo studentRepo;
+	private CategoryRepo categoryRepo;
 
-	public StudentService(QuestionsRepo questionRepo,StudentResponseRepo studentResponseRepo,StudentRepo studentRepo) {
+	public StudentService(QuestionsRepo questionRepo, StudentResponseRepo studentResponseRepo,
+			StudentRepo studentRepo,CategoryRepo categoryRepo) {
 		this.questionRepo = questionRepo;
 		this.studentResponseRepo = studentResponseRepo;
 		this.studentRepo = studentRepo;
+		this.categoryRepo = categoryRepo;
 	}
 
 	@Override
@@ -45,6 +50,17 @@ public class StudentService implements IStudentService {
 		Category category = new Category();
 		category.setCategoryId(categoryId);
 		return questionRepo.findByCategory(category);
+	}
+	
+	@Override
+	public Questions getQuestionByCategoryAndIndex(Integer categoryId, Integer index) {
+		Category orElse = categoryRepo.findById(categoryId).orElse(null);
+		List<Questions> byCategory = questionRepo.findByCategory(orElse);
+		if(index >= 0 && index < byCategory.size()) {
+			return byCategory.get(index);
+		}else {
+			return null;
+		}
 	}
 
 	@Override
@@ -67,39 +83,39 @@ public class StudentService implements IStudentService {
 
 		Set<Integer> keySet = questions.keySet();
 		for (Integer i : keySet) {
-			if (questions.get(i) == response.get(i)) {
+			if (questions.get(i).equals(response.get(i))) {
 				marks++;
 			}
 		}
-		
+
 		try {
 			studentResponseInJson = convertStudentResponseInJson(examResponse);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
-		Category category =  new Category();
+		Category category = new Category();
 		category.setCategoryId(ctaegoryId);
-		
+
 		User user = new User();
 		user.setUserId(userId);
-		
+
 		StudentResponse studentResponse = new StudentResponse();
 		studentResponse.setCategory(category);
 		studentResponse.setUser(user);
 		studentResponse.setResponses(studentResponseInJson);
 		studentResponse.setScoredMarks(marks);
 		studentResponse.setSubmittedTime(LocalDateTime.now());
-		Double percentage = ((double)marks/(double)keySet.size())*100;
+		Double percentage = ((double) marks / (double) keySet.size()) * 100;
 		studentResponse.setPercentage(percentage);
-		Boolean examStatus = percentage>70 ? true : false;
+		Boolean examStatus = percentage > 70 ? true : false;
 		studentResponse.setExamStatus(examStatus);
-		
+
 		StudentResponse save = studentResponseRepo.save(studentResponse);
-		if(save != null) {
+		if (save != null) {
 			return true;
 		}
 		return false;
-		
+
 	}
 
 	private String convertStudentResponseInJson(List<ExamResponse> examResponse) throws JsonProcessingException {
@@ -107,58 +123,68 @@ public class StudentService implements IStudentService {
 		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 		return objectMapper.writeValueAsString(examResponse);
 	}
-	
-	
+
 	@Override
 	public List<StudentResponse> getUserExamsByUserId(User user) {
 		List<StudentResponse> byUserId = studentResponseRepo.findByUser(user);
 		Collections.reverse(byUserId);
-		if(byUserId.size() < 8) {
+		if (byUserId.size() < 8) {
 			return byUserId;
 		}
 		return new ArrayList<>(byUserId.subList(0, 8));
 	}
 	
 	@Override
+	public StudentResponse getUserExamResponseAfterSubmittingExam(User user) {
+		List<StudentResponse> byUserId = studentResponseRepo.findByUser(user);
+		Collections.reverse(byUserId);
+		return byUserId.get(0);
+	}
+
+	@Override
 	public StudentDashboard buildStudentDashboard(User user) {
 		List<StudentResponse> byUserId = studentResponseRepo.findByUser(user);
 		StudentDashboard dashboard = new StudentDashboard();
 		dashboard.setNoOfExams(byUserId.size());
-		long passedExams = byUserId.stream().filter(e-> e.getExamStatus().equals(true)).count();
+		long passedExams = byUserId.stream().filter(e -> e.getExamStatus().equals(true)).count();
 		dashboard.setPassedExams(passedExams);
-		long failedExams = byUserId.stream().filter(e-> e.getExamStatus().equals(false)).count();
+		long failedExams = byUserId.stream().filter(e -> e.getExamStatus().equals(false)).count();
 		dashboard.setFailedExams(failedExams);
 		double overAllPercentage = byUserId.stream().mapToDouble(StudentResponse::getPercentage).average().orElse(0.0);
 		DecimalFormat decimalFormat = new DecimalFormat("#.##");
-        String formattedPercentage = decimalFormat.format(overAllPercentage);
+		String formattedPercentage = decimalFormat.format(overAllPercentage);
 		dashboard.setOverAllPercentage(formattedPercentage);
 		return dashboard;
 	}
-	
+
 	@Override
 	public Student findStudentByUserId(User user) {
 		return studentRepo.findByUser(user);
 	}
-	
+
 	@Override
 	public Student updateStudentDetails(Student updateStudent) {
-		Student student = studentRepo.findById(updateStudent.getStudentId()).get();
-		if (student.getName() != updateStudent.getName()) {
-			student.setName(updateStudent.getName());
+		Optional<Student> byId = studentRepo.findById(updateStudent.getStudentId());
+		if (byId.isPresent()) {
+			Student student = byId.get();
+			if (!student.getName().equals(updateStudent.getName())) {
+				student.setName(updateStudent.getName());
+			}
+			if (!student.getPhoneNumber().equals(updateStudent.getPhoneNumber())) {
+				student.setPhoneNumber(updateStudent.getPhoneNumber());
+			}
+			if (!student.getAddress().equals(updateStudent.getAddress())) {
+				student.setAddress(updateStudent.getAddress());
+			}
+			if (!student.getPassword().equals(updateStudent.getPassword()) && !updateStudent.getPassword().equals("")) {
+				student.setPassword(updateStudent.getPassword());
+			}
+			if (!student.getGender().equals(updateStudent.getGender())) {
+				student.setGender(updateStudent.getGender());
+			}
+			Student save = studentRepo.save(student);
+			return save;
 		}
-		if (student.getPhoneNumber() != updateStudent.getPhoneNumber()) {
-			student.setPhoneNumber(updateStudent.getPhoneNumber());
-		}
-		if (student.getAddress() != updateStudent.getAddress()) {
-			student.setAddress(updateStudent.getAddress());
-		}
-		if (student.getPassword() != updateStudent.getPassword() && !updateStudent.getPassword().equals("")) {
-			student.setPassword(updateStudent.getPassword());
-		}
-		if (student.getGender() != updateStudent.getGender()) {
-			student.setGender(updateStudent.getGender());
-		}
-		Student save = studentRepo.save(student);
-		return save;
+		return null;
 	}
 }

@@ -65,7 +65,11 @@ public class AdminService implements IAdminService {
 
 	@Override
 	public Subject getBySubjectId(Integer subjectId) {
-		return subjectRepo.findById(subjectId).get();
+		Optional<Subject> byId = subjectRepo.findById(subjectId);
+		if(byId.isPresent()) {
+			return byId.get();
+		}
+		return null;
 	}
 
 	@Override
@@ -91,7 +95,11 @@ public class AdminService implements IAdminService {
 
 	@Override
 	public Category getCategoryById(Integer categoryId) {
-		return categoryRepo.findById(categoryId).get();
+		Optional<Category> byId = categoryRepo.findById(categoryId);
+		if(byId.isPresent()) {
+			return byId.get();
+		}
+		return null;
 	}
 
 	@Override
@@ -144,43 +152,50 @@ public class AdminService implements IAdminService {
 			return question;
 		} else {
 
-			Questions questions = questionRepo.findById(question.getQuestionId()).get();
-			if (question.getQuestionValue() != questions.getQuestionValue()) {
+			Optional<Questions> byId = questionRepo.findById(question.getQuestionId());
+			if(byId.isEmpty()) {
+				return null;
+			}
+			Questions questions = byId.get();
+			if (question.getQuestionValue().equals(questions.getQuestionValue())) {
 				questions.setQuestionValue(question.getQuestionValue());
 				questions = questionRepo.save(questions);
 			}
 
 			Answer answer = questions.getAnswer();
-			if (question.getCorrectAnswer() != answer.getCorrectAnswer()) {
+			if (question.getCorrectAnswer().equals(answer.getCorrectAnswer())) {
 				answer.setCorrectAnswer(question.getCorrectAnswer());
 				answer = answerRepo.save(answer);
 			}
 
 			List<Options> options = questions.getOptions();
-			if (options.get(0).getOptionValue() != question.getOptionOne()) {
+			if (!options.get(0).getOptionValue().equals(question.getOptionOne())) {
 				Options options2 = options.get(0);
 				options2.setOptionValue(question.getOptionOne());
 				optionsRepo.save(options2);
 			}
-			if (options.get(1).getOptionValue() != question.getOptionTwo()) {
+			if (!options.get(1).getOptionValue().equals(question.getOptionTwo())) {
 				Options options2 = options.get(1);
 				options2.setOptionValue(question.getOptionTwo());
 				optionsRepo.save(options2);
 			}
-			if (options.get(2).getOptionValue() != question.getOptionThree()) {
+			if (!options.get(2).getOptionValue().equals(question.getOptionThree())) {
 				Options options2 = options.get(2);
 				options2.setOptionValue(question.getOptionThree());
 				optionsRepo.save(options2);
 			}
-			if (options.get(3).getOptionValue() != question.getOptionFour()) {
+			if (!options.get(3).getOptionValue().equals(question.getOptionFour())) {
 				Options options2 = options.get(3);
 				options2.setOptionValue(question.getOptionFour());
 				optionsRepo.save(options2);
 			}
 
 			question.setQuestionId(questions.getQuestionId());
-			Category category = categoryRepo.findById(categoryId).get();
-			question.setCategoryName(category.getCategoryName());
+			Optional<Category> byId2 = categoryRepo.findById(categoryId);
+			if(byId2.isPresent()) {
+				Category category = byId2.get();
+				question.setCategoryName(category.getCategoryName());
+			}
 			return question;
 		}
 	}

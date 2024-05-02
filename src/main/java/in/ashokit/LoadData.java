@@ -24,8 +24,7 @@ import in.ashokit.repo.StudentRepo;
 import in.ashokit.repo.SubjectRepo;
 import in.ashokit.repo.UserRepo;
 
-@Component
-public class LoadData implements CommandLineRunner{
+public class LoadData{
 	
 	private UserRepo userRepo;
 	private AdminRepo adminRepo;
@@ -50,7 +49,6 @@ public class LoadData implements CommandLineRunner{
 		this.optionsRepo = optionsRepo;
 	}
 	
-	@Override
 	public void run(String... args) throws Exception {
 		
 		User user1 = new User();
@@ -74,7 +72,7 @@ public class LoadData implements CommandLineRunner{
 		admin.setPhoneNumber(9876543210L);
 		admin.setUser(saveAll.get(0));
 		
-		Admin save = adminRepo.save(admin);
+		adminRepo.save(admin);
 		
 		Student student = new Student();
 		student.setName("rajesh");
@@ -86,7 +84,7 @@ public class LoadData implements CommandLineRunner{
 		student.setPhoneNumber(9087654321L);
 		student.setUser(saveAll.get(1));
 		
-		Student save2 = studentRepo.save(student);
+		studentRepo.save(student);
 		
 		Subject subject = new Subject();
 		subject.setSubjectName("Java");
@@ -235,7 +233,7 @@ public class LoadData implements CommandLineRunner{
 		option4Q5.setQuestion(saveAll2.get(4));
 		
 		List<Options> asList = Arrays.asList(option1Q1, option2Q1,option3Q1, option4Q1, option1Q2, option2Q2, option3Q2, option4Q2, option1Q3,option2Q3, option3Q3, option4Q3, option1Q4,option2Q4, option3Q4, option4Q4, option1Q5,option2Q5, option3Q5, option4Q5);
-		List<Options> saveAll3 = optionsRepo.saveAll(asList);
+		optionsRepo.saveAll(asList);
 		
 		Answer answer1 = new Answer();
 		answer1.setCorrectAnswer(1);
@@ -257,11 +255,7 @@ public class LoadData implements CommandLineRunner{
 		answer5.setCorrectAnswer(2);
 		answer5.setQuestion(saveAll2.get(4));
 		
-		
 		List<Answer> asList2 = Arrays.asList(answer1, answer2, answer3, answer4, answer5);
-		
-		List<Answer> saveAll4 = answerRepo.saveAll(asList2);
-		
-		
+		answerRepo.saveAll(asList2);
 	}
 }

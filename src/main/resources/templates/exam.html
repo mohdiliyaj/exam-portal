@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>AICTE Portal</title>
+	<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+	<link href="https://unpkg.com/@themesberg/flowbite@1.1.1/dist/flowbite.min.css" rel="stylesheet">
+	<script src="https://kit.fontawesome.com/65b6696452.js" crossorigin="anonymous"></script>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-900"
+	style="background-image: url('/assets/images/exam-background.png'); background-size: cover; background-position: center;">
+	<header class="fixed z-50 px-16 py-2 top-0 left-0 right-0 bg-white shadow-md">
+		<!-- Fixed header content -->
+		<nav>
+			<div class="mx-auto flex flex-wrap items-center justify-between">
+				<a class="text-sm font-bold block text-center text-gray-800 dark:text-gray-200" th:href="@{/dashboard}"
+					style="padding-bottom: 0px;">
+					<img th:src="@{/assets/images/ashokit-logo.png}" class="h-12" alt="logo">
+				</a>
+				<div class="hidden md:block w-full md:w-auto pr-4" id="mobile-menu">
+					<div class="flex items-center space-x-1">
+						<p class="mr-3 text-lg font-semibold">
+							<span>Time Remaining : </span>
+							<span id="timer"></span>
+						</p>
+						<input type="hidden" id="timerValue" th:value="${allQuestionSize}">
+					</div>
+				</div>
+			</div>
+		</nav>
+	</header>
+	<section class="w-full mt-32 flex items-center h-2/5">
+		<main class="container px-6 mx-auto">
+			<!-- Main content -->
+			<div class="mb-2">
+				<div class="relative mx-8">
+					<form id="examForm">
+						<div class="px-6 pb-6 pt-2">
+							<div class="mt-1">
+								<div class="col-span-6 sm:col-span-3">
+									<div class="mt-2 space-y-2">
+										<div class=" bg-white shadow-xl rounded-md p-4 w-full" id="questionParentContainer">
+											<div id="initialQuestionContainer" th:object="${question}">
+												<label class="text-xl lg:text-2xl font-semibold">
+													<span>Q: </span>
+													<span th:text="${question.questionValue}"></span>
+												</label>
+												<div th:each="option : ${question.options}">
+													<label
+														class="flex items-center bg-gray-100 text-gray-700 rounded-md px-3 py-2 my-3  hover:bg-blue-200 cursor-pointer ">
+														<input type="radio" name="Country"
+															th:name="${question.questionId}"
+															th:value="${option.optionNumber}">
+														<span class="pl-2 italic"
+															th:text="${option.optionValue}"></span>
+													</label>
+												</div>
+											</div>
+											<div id="allQuestionContainer" class="hidden">
+												<label class="text-xl lg:text-2xl font-semibold">
+													<span>Q: </span>
+													<span class="question-value"></span>
+												</label>
+												<div class="options-container">
+												</div>
+											</div>
+											<div class="flex justify-between items-center">
+												<span>
+													<span>Question : </span>
+													<span id="currentQuestionNo"></span>
+													<span>/</span>
+													<span id="totalQuestionNo"></span>
+												</span>
+												<button id="nextBtn"
+													class="text-white bg-indigo-500 hover:bg-indigo-500 focus:ring-4 focus:ring-cyan-200 font-medium rounded-lg text-sm px-5 py-2 text-center"
+													type="button" onclick="handleQuestionResponse()">Next Question
+												</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</main>
+	</section>
+	<footer class="fixed px-20 py-2 bg-white shadow-top bottom-0 left-0 right-0">
+		<nav>
+			<div class="mx-auto flex flex-wrap items-center justify-end">
+				<div class="hidden md:block w-full md:w-auto pr-3" id="mobile-menu">
+					<div class="flex items-center space-x-1">
+						<button id="submitBtn"
+							class="text-white bg-indigo-500 hover:bg-indigo-500 focus:ring-4 focus:ring-cyan-200 font-medium rounded-lg text-sm px-5 py-2 text-center"
+							type="button" onclick="submitExam()">Submit Exam
+						</button>
+					</div>
+				</div>
+			</div>
+		</nav>
+	</footer>
+
+	<script>
+		let timerInterval;
+		let examVisited = false;
+		let selectedQuestions = [];
+		let currentQuestionNumber = 1;
+		let totalQuestions = null;
+
+		document.addEventListener("DOMContentLoaded", function () {
+			const timerValue = document.getElementById('timerValue').value;
+			startTimer(parseInt(timerValue, 10));
+			totalQuestions = parseInt(timerValue, 10);
+			document.getElementById('totalQuestionNo').innerHTML = totalQuestions;
+			document.getElementById('currentQuestionNo').innerHTML = currentQuestionNumber;
+			const sessionValue = localStorage.getItem('isLoggedIn');
+			if (sessionValue !== 'true') {
+				isLoggedIn = false;
+				history.pushState(null, '', '/logout');
+			}
+
+			window.addEventListener('popstate', function (event) {
+				if (window.location.pathname === '/exam' && examVisited) {
+					logoutAndRedirect();
+					window.history.forward();
+				}
+			});
+
+			history.pushState(null, null, document.URL);
+			window.addEventListener('popstate', function () {
+				history.pushState(null, null, document.URL);
+			});
+		});
+
+		function handleQuestionResponse() {
+			const selectedAnswer = document.querySelector('input[type="radio"]:checked');
+			if (selectedAnswer) {
+				const questionId = selectedAnswer.getAttribute('name');
+				const answerId = selectedAnswer.value;
+				selectedQuestions.push({questionId, answerId});
+			}
+			const questionParentContainer = document.getElementById('questionParentContainer');
+			const initialQuestionContainer = document.querySelector('#initialQuestionContainer');
+			if (initialQuestionContainer) {
+				if (questionParentContainer.hasChildNodes() && questionParentContainer.contains(initialQuestionContainer)) {
+					questionParentContainer.removeChild(initialQuestionContainer);
+					document.getElementById('allQuestionContainer').classList.remove('hidden');
+				}
+			}
+			currentQuestionNumber++;
+			if (currentQuestionNumber <= totalQuestions) {
+				getNextQuestion(currentQuestionNumber);
+				document.getElementById('currentQuestionNo').innerHTML = currentQuestionNumber;
+			}
+		}
+
+		function showNextQuestion(questionData) {
+			const questionValueElement = document.querySelector('.question-value');
+			const optionsContainer = document.querySelector('.options-container');
+			const questionNumber = document.querySelector('.question-number');
+			questionValueElement.textContent = Object.keys(questionData)[0];
+			optionsContainer.innerHTML = '';
+			for (const [key, value] of Object.entries(questionData)) {
+				if (key === questionValueElement.textContent) {
+					continue;
+				} else {
+					const label = document.createElement('label');
+					label.className = 'flex items-center bg-gray-100 text-gray-700 rounded-md px-3 py-2 my-3 hover:bg-blue-200 cursor-pointer';
+					const input = document.createElement('input');
+					input.type = 'radio';
+					input.name = Object.values(questionData)[0];
+					input.value = value;
+					const span = document.createElement('span');
+					span.textContent = `${key}`;
+					span.classList = 'pl-2 italic'
+					label.appendChild(input);
+					label.appendChild(span);
+					optionsContainer.appendChild(label);
+				}
+			}
+		}
+
+		function startTimer(minutes) {
+			const endTime = new Date();
+			endTime.setMinutes(endTime.getMinutes() + minutes);
+			timerInterval = setInterval(function () {
+				const currentTime = new Date();
+				const timeDiff = endTime - currentTime;
+				const secondsRemaining = Math.floor(timeDiff / 1000);
+				if (secondsRemaining <= 0) {
+					clearInterval(timerInterval);
+					submitExamAndLogout();
+					return;
+				}
+				const minutesRemaining = Math.floor(secondsRemaining / 60);
+				const secondsDisplay = secondsRemaining % 60;
+				document.getElementById('timer').innerHTML = `${minutesRemaining}m ${secondsDisplay}s`;
+			}, 1000);
+		}
+
+		function submitExam() {
+			const submitBtn = document.getElementById('submitBtn');
+			submitBtn.disabled = true;
+			clearInterval(timerInterval);
+			examVisited = true;
+			fetch('/submitResponse', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(selectedQuestions)
+			}).then(response => {
+				if (response.ok) {
+					window.location.href = '/result';
+				}
+			});
+		}
+
+		function submitExamAndLogout() {
+			submitExam();
+			logoutAndRedirect();
+		}
+
+		function logoutAndRedirect() {
+			if (isLoggedIn) {
+				fetch('/logout', {
+					method: 'GET'
+				}).then(response => {
+					if (response.ok) {
+						localStorage.removeItem('isLoggedIn');
+						window.location.replace('/logout');
+					}
+				});
+			}
+		}
+
+		async function getNextQuestion(nextQuestionNumber) {
+			try {
+				var url = 'http://localhost:8080/getNextQuestion/' + nextQuestionNumber;
+				const response = await fetch(url);
+				if (!response.ok) {
+				}
+				const jsonData = await response.json();
+				showNextQuestion(jsonData);
+			} catch (error) {
+			}
+		}
+	</script>
+
+</body>
+
+</html>

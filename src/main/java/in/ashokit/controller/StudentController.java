@@ -1,6 +1,9 @@
 package in.ashokit.controller;
 
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -78,13 +82,32 @@ public class StudentController {
 		if (session != null) {
 			if (session.getAttribute("userType").equals("student")) {
 				session.setAttribute("categoryId", categoryId);
-				List<Questions> allQuestion = studentService.getAllQuestion(categoryId);
-				model.addAttribute("timeLimit", allQuestion.size());
-				model.addAttribute("questions", allQuestion);
-				return "examination";
+				List<Questions> allQuestions = studentService.getAllQuestion(categoryId);
+				model.addAttribute("allQuestionSize", allQuestions.size());
+				model.addAttribute("question", allQuestions.get(0));
+				return "exam";
 			}
 		}
 		return "redirect:/logout";
+	}
+
+	@GetMapping("/getNextQuestion/{questionNumber}")
+	@ResponseBody
+	public ResponseEntity<Map<String,Integer>> getNextQuestion(@PathVariable("questionNumber") Integer questionNumber,
+			HttpServletRequest req) {
+
+		HttpSession session = req.getSession(false);
+		if (session != null) {
+			Integer categoryId = (Integer) session.getAttribute("categoryId");
+			Questions questionByCategory = studentService.getQuestionByCategoryAndIndex(categoryId, questionNumber - 1);
+			Map<String, Integer> question = new LinkedHashMap<>();
+			question.put(questionByCategory.getQuestionValue(), questionByCategory.getQuestionId());
+			questionByCategory.getOptions().forEach(e->{
+				question.put(e.getOptionValue(), e.getOptionNumber());
+			});			
+			return new ResponseEntity<>(question, HttpStatus.OK);
+		}
+		return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@PostMapping("/submitResponse")
@@ -100,8 +123,16 @@ public class StudentController {
 	}
 
 	@GetMapping("/result")
-	public String loadResultPage(Model model) {
-		return "complete";
+	public String loadResultPage(Model model, HttpServletRequest req) {
+		HttpSession session = req.getSession(false);
+		if(session != null) {
+			User user = new User();
+			user.setUserId((Integer) session.getAttribute("userId"));
+			StudentResponse userExamResponseAfterSubmittingExam = studentService.getUserExamResponseAfterSubmittingExam(user);
+			model.addAttribute("studentResponse", userExamResponseAfterSubmittingExam);
+			return "complete";
+		}
+		return "redirect:/logout";
 	}
 
 	@GetMapping("/profile")

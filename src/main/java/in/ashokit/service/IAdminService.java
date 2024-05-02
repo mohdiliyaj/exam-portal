@@ -3,7 +3,6 @@ package in.ashokit.service;
 import java.util.List;
 
 import in.ashokit.binding.AdminDashboard;
-import in.ashokit.binding.ExamResponse;
 import in.ashokit.binding.Question;
 import in.ashokit.entity.Category;
 import in.ashokit.entity.Questions;
