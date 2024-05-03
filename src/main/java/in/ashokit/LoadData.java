@@ -49,7 +49,7 @@ public class LoadData implements CommandLineRunner{
 		this.answerRepo = answerRepo;
 		this.optionsRepo = optionsRepo;
 	}
-	
+	@Override
 	public void run(String... args) throws Exception {
 		
 		User user1 = new User();
@@ -212,7 +212,6 @@ public class LoadData implements CommandLineRunner{
 		option4Q4.setOptionValue("Strings in Java are implemented as arrays of characters");
 		option4Q4.setQuestion(saveAll2.get(3));
 
-		// Question 5 Options
 		Options option1Q5 = new Options();
 		option1Q5.setOptionNumber(1);
 		option1Q5.setOptionValue("Converts the string to uppercase");
