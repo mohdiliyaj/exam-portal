@@ -24,7 +24,8 @@ import in.ashokit.repo.StudentRepo;
 import in.ashokit.repo.SubjectRepo;
 import in.ashokit.repo.UserRepo;
 
-public class LoadData{
+@Component
+public class LoadData implements CommandLineRunner{
 	
 	private UserRepo userRepo;
 	private AdminRepo adminRepo;
