@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import in.ashokit.binding.AdminDashboard;
@@ -24,6 +25,10 @@ import in.ashokit.repo.OptionsRepo;
 import in.ashokit.repo.QuestionsRepo;
 import in.ashokit.repo.StudentResponseRepo;
 import in.ashokit.repo.SubjectRepo;
+import in.ashokit.spec.CategorySpecification;
+import in.ashokit.spec.QuestionSpecification;
+import in.ashokit.spec.StudentResponseSpecification;
+import in.ashokit.spec.SubjectSpecification;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -62,6 +67,15 @@ public class AdminService implements IAdminService {
 	public List<Subject> getAllSubjects() {
 		return subjectRepo.findAll();
 	}
+	
+	@Override
+	public List<Subject> getAllFilteredSubjects(Subject s) {
+		Specification<Subject> spec = Specification.where(null);
+		if (s.getSubjectName() != null) {
+			spec = spec.and(SubjectSpecification.likeName(s.getSubjectName().toLowerCase()));
+		}
+		return subjectRepo.findAll(spec);
+	}
 
 	@Override
 	public Subject getBySubjectId(Integer subjectId) {
@@ -91,6 +105,15 @@ public class AdminService implements IAdminService {
 	@Override
 	public List<Category> getAllCategories() {
 		return categoryRepo.findAll();
+	}
+	
+	@Override
+	public List<Category> getAllFilteredCategories(Category c) {
+		Specification<Category> spec = Specification.where(null);
+		if (c.getCategoryName() != null) {
+			spec = spec.and(CategorySpecification.likeName(c.getCategoryName().toLowerCase()));
+		}
+		return categoryRepo.findAll(spec);
 	}
 
 	@Override
@@ -224,6 +247,30 @@ public class AdminService implements IAdminService {
 		});
 		return questions;
 	}
+	
+	@Override
+	public List<Question> getAllFilteredQuestions(Questions q) {
+		Specification<Questions> spec = Specification.where(null);
+		if (q.getQuestionValue() != null) {
+			spec = spec.and(QuestionSpecification.likeName(q.getQuestionValue().toLowerCase()));
+		}
+		List<Questions> all = questionRepo.findAll(spec);
+		List<Question> questions = new ArrayList<>();
+		all.forEach(e -> {
+			Question question = new Question();
+			question.setQuestionId(e.getQuestionId());
+			question.setQuestionValue(e.getQuestionValue());
+			question.setCategoryId(e.getCategory().getCategoryId());
+			question.setCategoryName(e.getCategory().getCategoryName());
+			question.setCorrectAnswer(e.getAnswer().getCorrectAnswer());
+			question.setOptionOne(e.getOptions().get(0).getOptionValue());
+			question.setOptionTwo(e.getOptions().get(1).getOptionValue());
+			question.setOptionThree(e.getOptions().get(2).getOptionValue());
+			question.setOptionFour(e.getOptions().get(3).getOptionValue());
+			questions.add(question);
+		});
+		return questions;
+	}
 
 	@Override
 	public Question getByQuestionId(Integer questionId) {
@@ -261,5 +308,12 @@ public class AdminService implements IAdminService {
 	public List<StudentResponse> viewAllStudentResponse() {
 		return studentResponseRepo.findAll();
 	}
-	
+	@Override
+	public List<StudentResponse> viewAllFilteredStudentResponses(User user) {
+		Specification<StudentResponse> spec = Specification.where(null);
+		if(user.getEmail() != null) {
+			spec = spec.and(StudentResponseSpecification.byUserEmail(user.getEmail()));
+		}
+	    return studentResponseRepo.findAll(spec);
+	}
 }

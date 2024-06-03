@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Exam Response</title>
+	<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+	<style>
+		@page {
+			size: A4;
+		}
+	</style>
+</head>
+
+<body class="flex justify-center min-h-screen bg-gray-100">
+	<div class="max-w-3xl w-full bg-white shadow-lg">
+		<div class="mb-1 flex justify-center bg-white">
+			<img src="/assets/images/ashokit-logo.png" class="h-12" alt="ashokit-logo">
+		</div>
+		<div class="bg-white p-6">
+			<h3 class="text-2xl font-semibold text-center pb-4">Exam Response Card</h3>
+			<div class="mb-4 border-b-2 border-gray-500 pb-1">
+				<div class="flex justify-between">
+					<span class="flex-1">
+						<span class="font-semibold">Exam Name:</span>
+						<span th:text="${category.categoryName}"></span>
+					</span>
+					<span class="flex-1 text-right">
+						<span class="font-semibold">Student Name:</span>
+						<span th:text="${user.name}"></span>
+					</span>
+				</div>
+				<div class="flex justify-between mt-2">
+					<span class="flex-1">
+						<span class="font-semibold">Scored Marks:</span>
+						<span th:text="${studentResponse.scoredMarks}"></span>
+					</span>
+					<span class="flex-1 text-right">
+						<span class="font-semibold">Scored Percentage:</span>
+						<span th:text="${studentResponse.percentage}"></span>
+						<span>%</span>
+					</span>
+				</div>
+			</div>
+			<div class="border-b-2 border-gray-500 pb-1" th:each="question : ${questions}">
+				<p class="font-semibold">
+					<span>Q:</span>
+					<span th:text="${question.questionValue}"></span>
+				</p>
+				<p class="pl-4 mt-2" th:each="option : ${question.options}">
+					<span th:text="${option.optionNumber}"></span><span>. </span>
+					<span th:text="${option.optionValue}"></span>
+				</p>
+				<div class="flex justify-between mt-1 text-sm">
+					<span class="flex-1">
+						<span>Correct Option : </span>
+						<span th:text="${question.answer.correctAnswer}"></span>
+					</span>
+					<span class="flex-1 text-center">
+						<span>Selected Option : </span>
+						<span style="display: inline-block;">
+							<span th:each="response : ${studentExamResponse}"
+								th:if="${response.questionId == question.questionId}">
+								<span th:text="${response.answerId}"></span>
+							</span>
+						</span>
+					</span>
+					<span class="flex-1 text-right">
+						<span th:each="response : ${studentExamResponse}"
+							th:if="${response.questionId == question.questionId}">
+							<span th:if="${response.answerId == question.answer.correctAnswer}">1 Point</span>
+							<span th:if="${response.answerId != question.answer.correctAnswer}">0 Point</span>
+						</span>
+					</span>
+				</div>
+			</div>
+		</div>
+		<div class="text-center mt-6 text-gray-600">
+			<p>All Copy Rights Reserved by &copy; 2024 Ashok IT</p>
+		</div>
+	</div>
+</body>
+
+</html>

@@ -45,9 +45,11 @@
 								<span class="text-red-600" th:if="${studentResponse.examStatus == false}">Fail</span>
 							</span>
 						</p>
-						<p class="pt-4 flex flex-direction-col">
+						<p class="pt-4 flex flex-direction-col justify-between">
 							<a class="block px-2 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded-md"
 								th:href="@{/dashboard}">Return to dashboard</a>
+							<a class="block px-2 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded-md"
+								th:href="@{/downloadResponse}">Download Exam Response</a>
 						</p>
 					</div>
 				</div>

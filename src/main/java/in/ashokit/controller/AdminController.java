@@ -15,6 +15,7 @@ import in.ashokit.entity.Category;
 import in.ashokit.entity.Questions;
 import in.ashokit.entity.StudentResponse;
 import in.ashokit.entity.Subject;
+import in.ashokit.entity.User;
 import in.ashokit.service.IAdminService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -91,8 +92,24 @@ public class AdminController {
 		if (session != null) {
 			if (session.getAttribute("userType").equals("admin")) {
 				List<Subject> allSubjects = adminService.getAllSubjects();
+				Subject subject = new Subject();
 				model.addAttribute("allSubjects", allSubjects);
+				model.addAttribute("subject", subject);
 				return "view-subjects";
+			}
+		}
+		return "redirect:/logout";
+	}
+	
+	@PostMapping("/filtered-subjects")
+	public String showFilteredSubjects(@ModelAttribute("subject") Subject s, HttpServletRequest req, Model model) {
+		HttpSession session = req.getSession(false);
+		if(session != null) {
+			if (session.getAttribute("userType").equals("admin")) {
+				List<Subject> allFilteredSubjects = adminService.getAllFilteredSubjects(s);
+				model.addAttribute("allSubjects", allFilteredSubjects);
+				model.addAttribute("subject", s);
+				return "filtered-subjects";
 			}
 		}
 		return "redirect:/logout";
@@ -181,8 +198,24 @@ public class AdminController {
 		if (session != null) {
 			if (session.getAttribute("userType").equals("admin")) {
 				List<Category> allCategories = adminService.getAllCategories();
+				Category category = new Category();
 				model.addAttribute("allCategories", allCategories);
+				model.addAttribute("category", category);
 				return "view-categories";
+			}
+		}
+		return "redirect:/logout";
+	}
+	
+	@PostMapping("/filtered-categories")
+	public String showAllFilteredCategories(@ModelAttribute("category") Category c ,HttpServletRequest req, Model model) {
+		HttpSession session = req.getSession(false);
+		if(session != null) {
+			if(session.getAttribute("userType").equals("admin")) {
+				List<Category> allFilteredCategories = adminService.getAllFilteredCategories(c);
+				model.addAttribute("allCategories", allFilteredCategories);
+				model.addAttribute("category", c);
+				return "filtered-category";
 			}
 		}
 		return "redirect:/logout";
@@ -276,8 +309,24 @@ public class AdminController {
 		if (session != null) {
 			if (session.getAttribute("userType").equals("admin")) {
 				List<Question> allQuestions = adminService.getAllQuestions();
+				Questions question = new Questions();
 				model.addAttribute("allQuestions", allQuestions);
+				model.addAttribute("question", question);
 				return "view-questions";
+			}
+		}
+		return "redirect:/logout";
+	}
+	
+	@PostMapping("/filtered-questions")
+	public String viewFilteredQuestions(@ModelAttribute("question")Questions q,HttpServletRequest req, Model model) {
+		HttpSession session = req.getSession(false);
+		if(session != null) {
+			if(session.getAttribute("userType").equals("admin")) {
+				List<Question> allFilteredQuestions = adminService.getAllFilteredQuestions(q);
+				model.addAttribute("allQuestions", allFilteredQuestions);
+				model.addAttribute("question", q);
+				return "filtered-questions";
 			}
 		}
 		return "redirect:/logout";
@@ -307,7 +356,23 @@ public class AdminController {
 			if (session.getAttribute("userType").equals("admin")) {
 				List<StudentResponse> viewAllStudentResponse = adminService.viewAllStudentResponse();
 				model.addAttribute("allResponses", viewAllStudentResponse);
+				User user = new User();
+				model.addAttribute("user", user);
 				return "student-responses";
+			}
+		}
+		return "redirect:/logout";
+	}
+	
+	@PostMapping("/filtered-responses")
+	public String viewFilteredStudentResponses(@ModelAttribute("user") User user,HttpServletRequest req, Model model) {
+		HttpSession session = req.getSession(false);
+		if(session != null) {
+			if(session.getAttribute("userType").equals("admin")) {
+				List<StudentResponse> viewAllFilteredStudentResponses = adminService.viewAllFilteredStudentResponses(user);
+				model.addAttribute("allResponses", viewAllFilteredStudentResponses);
+				model.addAttribute("user", user);
+				return "filtered-responses";
 			}
 		}
 		return "redirect:/logout";

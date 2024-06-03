@@ -1,11 +1,12 @@
 package in.ashokit.controller;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.server.ServerWebExchange;
 
 import in.ashokit.binding.ExamResponse;
 import in.ashokit.binding.StudentDashboard;
@@ -27,6 +29,7 @@ import in.ashokit.entity.User;
 import in.ashokit.service.IAdminService;
 import in.ashokit.service.IStudentService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -133,6 +136,53 @@ public class StudentController {
 			return "complete";
 		}
 		return "redirect:/logout";
+	}
+	
+	@GetMapping("/downloadResponse")
+	@ResponseBody
+	public ResponseEntity<byte[]> downloadExamResponse(HttpServletRequest req){
+		HttpSession session = req.getSession();
+		if(session!= null) {
+			Integer userId = (Integer) session.getAttribute("userId");
+			User user = studentService.findUserById(userId);
+			StudentResponse userExamResult = studentService.getUserExamResponseAfterSubmittingExam(user);
+			byte[] responsePdf = studentService.generateResponsePdf(userExamResult.getResponseId());
+			HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", user.getName()+"_response_"+userExamResult.getResponseId()+".pdf");
+            headers.setCacheControl("must-revalidate, no-cache, no-store");
+            headers.setPragma("no-cache");
+            headers.setExpires(0);
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(responsePdf.length)
+                    .body(responsePdf);			
+		}
+		return new ResponseEntity<>(null, HttpStatus.OK);
+	}
+	
+	@GetMapping("/download-response")
+	@ResponseBody
+	public ResponseEntity<byte[]> downloadResponse(@RequestParam("responseId") Integer responseId,HttpServletRequest req){
+		HttpSession session = req.getSession();
+		if(session!= null) {
+			Integer userId = (Integer) session.getAttribute("userId");
+			User user = studentService.findUserById(userId);
+			byte[] responsePdf = studentService.generateResponsePdf(responseId);
+			HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", user.getName()+"_response_"+responseId+".pdf");
+            headers.setCacheControl("must-revalidate, no-cache, no-store");
+            headers.setPragma("no-cache");
+            headers.setExpires(0);
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(responsePdf.length)
+                    .body(responsePdf);			
+		}
+		return new ResponseEntity<>(null, HttpStatus.OK);
 	}
 
 	@GetMapping("/profile")

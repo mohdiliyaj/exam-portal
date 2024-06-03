@@ -18,8 +18,8 @@
 		<!-- header -->
 		<header class="z-10 py-2-5 bg-white shadow-md dark:bg-gray-800 w-full">
 			<div class=" flex items-center justify-between h-full w-full text-purple-600 dark:text-purple-300">
-				<a class="pl-2 text-sm font-bold block text-center text-gray-800 dark:text-gray-200" th:href="@{/dashboard}"
-					style="padding-bottom: 0px;">
+				<a class="pl-2 text-sm font-bold block text-center text-gray-800 dark:text-gray-200"
+					th:href="@{/dashboard}" style="padding-bottom: 0px;">
 					<img th:src="@{/assets/images/ashokit-logo.png}" class="h-9" alt="logo">
 				</a>
 				<ul class="pr-10 flex ms-auto space-x-6">
@@ -89,7 +89,8 @@
 		</header>
 		<!-- main container -->
 		<div class="flex flex-1 w-full h-full">
-			<aside class="z-20 hidden w-64 overflow-y-auto bg-white border-t border-gray-300 dark:border-gray-700 dark:bg-gray-800 md:block flex-shrink-0">
+			<aside
+				class="z-20 hidden w-64 overflow-y-auto bg-white border-t border-gray-300 dark:border-gray-700 dark:bg-gray-800 md:block flex-shrink-0">
 				<div class="text-gray-500 dark:text-gray-400">
 					<ul class="mt-2">
 						<li class="relative px-6 py-3">
@@ -221,43 +222,54 @@
 					</div>
 					<div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4" th:if="${exams.size() != 0}">
 						<div th:each="exam : ${exams}">
-							<div class="flex items-center p-4 bg-white rounded-lg shadow-xl dark:bg-gray-800">
-								<div th:if="${exam.examStatus == true}"
-									class="p-3 mr-4 text-green-500 bg-green-100 rounded-full dark:text-green-100 dark:bg-green-500">
-									<svg data-slot="icon" class="w-5 h-5" fill="none" stroke-width="1.5"
-										stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
-										aria-hidden="true">
-										<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5">
-										</path>
-									</svg>
+							<div class="p-4 bg-white rounded-lg shadow-xl dark:bg-gray-800">
+								<div class="flex items-center">
+									<div th:if="${exam.examStatus == true}"
+										class="p-3 mr-4 text-green-500 bg-green-100 rounded-full dark:text-green-100 dark:bg-green-500">
+										<svg data-slot="icon" class="w-5 h-5" fill="none" stroke-width="1.5"
+											stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
+											aria-hidden="true">
+											<path stroke-linecap="round" stroke-linejoin="round"
+												d="m4.5 12.75 6 6 9-13.5">
+											</path>
+										</svg>
+									</div>
+									<div th:if="${exam.examStatus == false}"
+										class="p-3 mr-4 text-red-600 bg-red-100 rounded-full dark:text-orange-100 dark:bg-orange-500">
+										<svg data-slot="icon" class="w-5 h-5" fill="none" stroke-width="1.5"
+											stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
+											aria-hidden="true">
+											<path stroke-linecap="round" stroke-linejoin="round"
+												d="M6 18 18 6M6 6l12 12">
+											</path>
+										</svg>
+									</div>
+									<div>
+										<p class="mb-1 text-base font-semibold text-gray-700 dark:text-gray-200"
+											th:text="${exam.getCategory().getCategoryName()}"></p>
+										<p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+											<span class="font-semibold text-gray-700 dark:text-gray-200">Scored Marks :
+											</span>
+											<span th:text="${exam.scoredMarks}"></span>
+										</p>
+										<p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+											<span class="font-semibold text-gray-700 dark:text-gray-200">Percentage :
+											</span><span th:text="${exam.percentage}"></span>
+										</p>
+										<p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+											<span class="font-semibold text-gray-700 dark:text-gray-200">Status :
+											</span>
+											<span class="text-green-500" th:if="${exam.examStatus == true}">Pass</span>
+											<span class="text-red-600" th:if="${exam.examStatus == false}">Fail</span>
+										</p>
+									</div>
 								</div>
-								<div th:if="${exam.examStatus == false}"
-									class="p-3 mr-4 text-red-600 bg-red-100 rounded-full dark:text-orange-100 dark:bg-orange-500">
-									<svg data-slot="icon" class="w-5 h-5" fill="none" stroke-width="1.5"
-										stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
-										aria-hidden="true">
-										<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12">
-										</path>
-									</svg>
-								</div>
-								<div>
-									<p class="mb-1 text-base font-semibold text-gray-700 dark:text-gray-200"
-										th:text="${exam.getCategory().getCategoryName()}"></p>
-									<p class="text-sm font-medium text-gray-600 dark:text-gray-400">
-										<span class="font-semibold text-gray-700 dark:text-gray-200">Scored Marks :
-										</span>
-										<span th:text="${exam.scoredMarks}"></span>
-									</p>
-									<p class="text-sm font-medium text-gray-600 dark:text-gray-400">
-										<span class="font-semibold text-gray-700 dark:text-gray-200">Percentage :
-										</span><span th:text="${exam.percentage}"></span>
-									</p>
-									<p class="text-sm font-medium text-gray-600 dark:text-gray-400">
-										<span class="font-semibold text-gray-700 dark:text-gray-200">Status : </span>
-										<span class="text-green-500" th:if="${exam.examStatus == true}">Pass</span>
-										<span class="text-red-600" th:if="${exam.examStatus == false}">Fail</span>
-									</p>
-								</div>
+								<div class="mt-2">
+									<a th:href="@{/download-response(responseId=${exam.responseId})}"
+										class="px-4 w-full py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">
+										Get Response Card
+									</a>
+								</div>	
 							</div>
 						</div>
 					</div>

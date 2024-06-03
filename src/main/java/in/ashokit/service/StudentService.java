@@ -11,13 +11,21 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.itextpdf.html2pdf.ConverterProperties;
+import com.itextpdf.html2pdf.HtmlConverter;
+import com.itextpdf.io.exceptions.IOException;
+import com.itextpdf.io.source.ByteArrayOutputStream;
 
 import in.ashokit.binding.ExamResponse;
 import in.ashokit.binding.StudentDashboard;
+import in.ashokit.binding.StudentExamResponse;
 import in.ashokit.entity.Category;
 import in.ashokit.entity.Questions;
 import in.ashokit.entity.Student;
@@ -27,6 +35,7 @@ import in.ashokit.repo.CategoryRepo;
 import in.ashokit.repo.QuestionsRepo;
 import in.ashokit.repo.StudentRepo;
 import in.ashokit.repo.StudentResponseRepo;
+import in.ashokit.repo.UserRepo;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -36,13 +45,18 @@ public class StudentService implements IStudentService {
 	private StudentResponseRepo studentResponseRepo;
 	private StudentRepo studentRepo;
 	private CategoryRepo categoryRepo;
-
+	private UserRepo userRepo;
+	private final TemplateEngine templateEngine;
+	
 	public StudentService(QuestionsRepo questionRepo, StudentResponseRepo studentResponseRepo,
-			StudentRepo studentRepo,CategoryRepo categoryRepo) {
+			StudentRepo studentRepo,CategoryRepo categoryRepo, TemplateEngine templateEngine, 
+			UserRepo userRepo) {
 		this.questionRepo = questionRepo;
 		this.studentResponseRepo = studentResponseRepo;
 		this.studentRepo = studentRepo;
 		this.categoryRepo = categoryRepo;
+		this.templateEngine = templateEngine;
+		this.userRepo = userRepo;
 	}
 
 	@Override
@@ -184,6 +198,59 @@ public class StudentService implements IStudentService {
 			}
 			Student save = studentRepo.save(student);
 			return save;
+		}
+		return null;
+	}
+	
+	@Override
+	public byte[] generateResponsePdf(Integer responseId) {
+		Optional<StudentResponse> byId = studentResponseRepo.findById(responseId);
+		if(byId.isEmpty()) {
+			return null;
+		}
+		StudentResponse studentResponse = byId.get();
+		Optional<User> byId2 = userRepo.findById(studentResponse.getUser().getUserId());
+		Optional<Category> byId3 = categoryRepo.findById(studentResponse.getCategory().getCategoryId());
+		if(byId2.isEmpty() || byId3.isEmpty()) {
+			return null;
+		}
+		
+		List<Questions> allQuestion = getAllQuestion(byId3.get().getCategoryId());
+		
+		Context context = new Context();
+		context.setVariable("studentResponse", studentResponse);
+		context.setVariable("user", byId2.get());
+		context.setVariable("category", byId3.get());
+		context.setVariable("questions", allQuestion);
+		
+		String responses = studentResponse.getResponses();
+		ObjectMapper mapper = new ObjectMapper();
+		List<StudentExamResponse> list = null;
+		try {
+			list = mapper.readValue(responses, new TypeReference<List<StudentExamResponse>>(){});
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		context.setVariable("studentExamResponse", list);
+		String process = templateEngine.process("student-result", context);
+		
+		ByteArrayOutputStream target = new ByteArrayOutputStream();
+        ConverterProperties converterProperties = new ConverterProperties();
+        converterProperties.setBaseUri("http://localhost:8080");
+        try {
+            HtmlConverter.convertToPdf(process, target, converterProperties);
+            return target.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+	}
+	
+	@Override
+	public User findUserById(Integer userId) {
+		Optional<User> byId = userRepo.findById(userId);
+		if(byId.isPresent()) {
+			return byId.get();
 		}
 		return null;
 	}
